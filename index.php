@@ -42,14 +42,18 @@ $us_state_abbrs = [
   <meta name="viewport" content="width=device-width, initial-scale=1">
   
   <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   <script src="//ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
   <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
  
 </head>
 <body>
-
-
+<br>
+<hr><br>
+<h1 class="text-center text-primary">US Physcians Search</h1>
+<br>
+<hr><hr>
 <div class="container">	
     
 <div id="accordion" >
@@ -67,7 +71,8 @@ $us_state_abbrs = [
                  state_abbr="<?php echo $stateAbbr?>" 
                  data-toggle="collapse" onclick="showDoctor('<?php echo strtolower($_state_name);?>', '<?php echo $stateAbbr; ?>' )";
                  > 
-            <h1 class="col text-center"><?php echo $stateName; ?></h1>
+            <h1 class="col text-center"><i class="fa fa-flag" aria-hidden="true"></i>
+ <?php echo $stateName; ?></h1>
           </a></h1>
         </div>
 

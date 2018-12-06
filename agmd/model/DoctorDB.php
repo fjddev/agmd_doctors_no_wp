@@ -482,8 +482,6 @@ public function get_wp_DoctorByState($state){
 
 		$page_name = "doctordetails";
 
-	//	$templ_dir =  get_page_link($agmd_doctor_details_page) ;
-
 		$results .="<td><a href=" . 
 
 		"doctor_details.php?doctor_id={$doctor_id}" .

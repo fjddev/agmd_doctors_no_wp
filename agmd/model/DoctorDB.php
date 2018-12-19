@@ -18,7 +18,7 @@ class DoctorDB {
 
         foreach($statement as $r){
 
-                $title_results .= $r['title'];
+                $title_results .= $r['title'] . "<br>";
 
         }
 
@@ -32,7 +32,7 @@ class DoctorDB {
         $db = Database::getDB();
 
         $query="";
-        $query .= "SELECT interest FROM doctor_interest WHERE doctor_id = :doctor_id order by interest";
+        $query .= "SELECT distinct interest FROM doctor_interest WHERE doctor_id = :doctor_id order by interest";
 
 
         $statement = $db->prepare($query);
@@ -43,7 +43,7 @@ class DoctorDB {
 
         foreach($statement as $r){
 
-                $interest_results .= $r['interest'] .",  ";
+                $interest_results .= $r['interest'] ."  <br>";
 
         }
 
@@ -166,6 +166,36 @@ class DoctorDB {
                          
 
     }
+    function get_doctor_addresses($doctor_id){
+        $db = Database::getDB();
+        $query = "";
+        $query .= "SELECT a.address_name, a.address, a.address2, a.address3, a.address4, a.city, a.state, a.zip5, a.zip4 ";
+        $query .= "FROM address_us a ";
+        $query .= "WHERE a.doctor_id=:doctor_id ";
+
+        $statement = $db->prepare($query);
+        $statement->bindValue(':doctor_id', $doctor_id);
+        $statement->execute();  
+
+        $results = "";
+        foreach ($statement as $row)  {
+            $address_display = 
+                    $this->prepareAddress($row['address_name'],
+                    $row['address'],
+                    $row['address2'],
+                    $row['address3'],
+                    $row['address4'],
+                    $row['city'],
+                    $row['state'],
+                    $row['zip5'],
+                    $row['zip4']
+
+            ); 
+            $results .= $address_display . "<br>";          
+            
+        }
+        return $results;
+    }
 
 
 
@@ -197,10 +227,81 @@ class DoctorDB {
 
 
     }
+// Doctor Detail with cards
+    public function get_wp_doctor_detail($doctor_id){
 
+        $db = Database::getDB();	
+        $query = "";
+        // $query .= "SELECT d.doctor_id, d.credentials, d.first_name, d.last_name, a.address_name, ";
+        // $query .= "       a.address, a.address2, a.address3, a.address4, a.city, a.state, a.zip5, a.zip4 ";
+        // $query .= " FROM doctor d, address_us a ";
+        // $query .= "WHERE d.doctor_id = a.doctor_id AND d.doctor_id=:doctor_id ";
 
+        $query .= "SELECT d.doctor_id, d.credentials, d.first_name, d.last_name ";
+        $query .= " FROM doctor d ";
+        $query .= "WHERE d.doctor_id=:doctor_id ";
+        
+        
+        $statement = $db->prepare($query);
+        $statement->bindValue(':doctor_id', $doctor_id);       
+        $statement->execute();     	
+        
+        $results="";
+    
+        foreach ($statement as $row) {
+            $doctor_id = $row['doctor_id'];
+            // Doctor Name Card
+            $doctor_full_name =  $row['first_name'] . " " . " " . $row['last_name']. " " .$row['credentials'] ;
+            $results .= '<div class="card text-white bg-primary mb-3 agmd-no-copy">';
+            $results .= '<div class="card-body">';
+            $results .= '<h4 class="card-title">Doctor</h4>';
+            $results .= '<p class="card-text">';
+            $results .= $doctor_full_name;
+            $results .= '</p>';
+            $results .= '</div>';
+            $results .= '</div>';   
 
-public function get_wp_doctor_detail($doctor_id){
+            //Doctor Title Card
+            $titles = $this->get_doctor_title($doctor_id);   
+            if($titles !== ""){
+                $results .= '<div class="card text-white bg-primary mb-3 agmd-no-copy">';
+                $results .= '<div class="card-body">';
+                $results .= '<h4 class="card-title">Titles</h4>';
+                $results .= '<p class="card-text">';
+                $results .= $titles;
+                $results .= '</p>';
+                $results .= '</div>';
+                $results .= '</div>';     
+            }                  
+
+            //Doctor Interest Card
+            $doctor_interests = $this->get_doctor_interests($doctor_id) . "</td>";
+            $results .= '<div class="card text-white bg-primary mb-3 agmd-no-copy">';
+            $results .= '<div class="card-body">';
+            $results .= '<h4 class="card-title">Interests</h4>';
+            $results .= '<p class="card-text">';
+            $results .= $doctor_interests;
+            $results .= '</p>';
+            $results .= '</div>';
+            $results .= '</div>';  
+
+        $address_display= $this-> get_doctor_addresses($doctor_id);
+        $phones = $this-> get_doctor_phones($doctor_id);
+        $results .= '<div class="card text-white bg-primary mb-3 agmd-no-copy">';
+        $results .= '<div class="card-body">';
+        $results .= '<h4 class="card-title">Contact Info</h4>';
+        $results .= '<p class="card-text">';
+        $results .= $address_display ."<br>" . $phones;
+        $results .= '</p>';
+        $results .= '</div>';
+        $results .= '</div>';              
+    } //for
+    
+            return $results;        
+    
+}
+
+public function get_wp_doctor_detail_table_version($doctor_id){
 
     $db = Database::getDB();	
 	$query = "";
@@ -219,24 +320,24 @@ public function get_wp_doctor_detail($doctor_id){
         
 
         $results="";
+        // card changes
+        // $results .= '<div  style="overflow-x:auto;" class="agmd-no-copy">';
 
-        $results .= '<div  style="overflow-x:auto;" class="agmd-no-copy">';
+        // $results .= "<table class='table table-bordered table-hover table-striped'>
 
-        $results .= "<table class='table table-bordered table-hover table-striped'>
+        // <tr>
 
-        <tr>
+        // <th>Doctor</th>
 
-        <th>Doctor</th>
+        // <th style='width: 20%'>Title</th>
 
-        <th style='width: 20%'>Title</th>
+        // <th style='width: 30%' >Interests</th>
 
-        <th style='width: 30%' >Interests</th>
+        // <th>Address</th>
 
-        <th>Address</th>
+        // <th>Phone</th>
 
-        <th>Phone</th>
-
-        </tr>";
+        // </tr>";
 
 
 
@@ -456,14 +557,40 @@ public function get_wp_DoctorByState($state){
 	
     $results="";
 
-	$results .= '<div class="container"  style="overflow-x:auto;" >';
-	$results .= "<table class='table   table-bordered table-hover table-striped'> ";
-	$results .= "<tr> ";
-	$results .= "<th >Doctor</th> ";
-	$results .= "<th style='width: 25%'>Title</th> ";
-	$results .= "<th style='width: 25%'>City/Town</th> ";
-	$results .= "<th style='width: 5%'>&nbsp;</th> ";
-	$results .= " </tr> "        ;
+	$results .= '<div class="container agmd-no-copy"  style="overflow-x:auto;"  >';
+	// $results .= "<table class='table   table-bordered table-hover table-striped'> ";
+	// $results .= "<tr> ";
+	// $results .= "<th >Doctor</th> ";
+	// $results .= "<th style='width: 25%'>Title</th> ";
+	// $results .= "<th style='width: 25%'>City/Town</th> ";
+	// $results .= "<th style='width: 5%'>&nbsp;</th> ";
+    // $results .= " </tr> "        ;
+    $results .= '<div class="row "  style="background:  #e6f7ff">';
+ 
+
+
+    $results .= '<div class="col-sm-7" style="border:1px solid #333">';
+    $results .= '<h5>Doctor</h5>';
+    $results .= '</div>';
+
+    // $results .= '<div class="col-sm-4" style="border:1px solid #333">';
+    // $results .= 'Title';
+    // $results .= '</div>';
+
+
+    $results .= '<div class="col-sm-3" style="border:1px solid #333">';
+    $results .= '<h5 ">City/Town</h5>';
+    $results .= '</div>';
+
+    $results .= '<div class="col-sm-2" style="border:1px solid #333">';
+    $results .= '<h5 >Detail</h5>';
+    $results .= '</div>';    
+    
+
+
+    $results .= '</div>';  //row
+
+    $count = 1;
 
 	foreach ($statement as $row) {
 
@@ -472,25 +599,41 @@ public function get_wp_DoctorByState($state){
 		$doctor_id = $row['doctor_id'];
 
 
-		$results .= "<tr>";
+        //$results .= '<div class="row" style="background:  #e6f7ff">';
+        if($count % 2 ==0){
+            $results .= '<div class="row bg-secondary text-white mb-1" >';
+        }else{
+            $results .= '<div class="row bg-info text-white mb-1" >';
+        }
+        $count++;
+   
 
-		$results .= "<td>". $row['credentials'] . " " . $row['first_name'] . " " . " " . $row['last_name'] . "</td>";
+        $results .= '<div class="col-sm-7" style="border:1px solid #333">';
+        $results .= "<p class='font-weight-bold  font-italic agmd-font-size1'  >". $row['credentials'] . " " . $row['first_name'] . " " . " " . $row['last_name'] . "";
+        $results .="</div>";
 
-		$results .= "<td>" . $titles . "</td>";
+        // $results .= '<div class="col-sm-4" style="border:1px solid #333">';
+        // $results .= "<p>" . $titles . "</p>";
+        // $results .= "</div>";
 
-		$results .= "<td>" . $row['city'] . "</td>";
+        $results .= '<div class="col-sm-3" style="border:1px solid #333">';
+        $results .= "<p class='font-weight-bold agmd-font-size1' >" . $row['city'] . "</p>";
+        $results .= "</div>";
 
+        $results .= '<div class="col-2" style="border:1px solid #333">';
 		$page_name = "doctordetails";
 
-		$results .="<td><a href=" . 
+		$results .="<a href=" . 
 
 		"doctor_details.php?doctor_id={$doctor_id}" .
 
-		 " class='btn agmd-btn-primary doctor_select btn-lg'>Detail</a>" . "</td>";
+         " class='btn  btn-success btn-lg '>Detail</a>";
+         $results .= "</div>";
 
 
 
-		$results .= "</tr>";
+        $results .= "</div>";
+        
 
 	}
 

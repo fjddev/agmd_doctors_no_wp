@@ -38,9 +38,10 @@
 </head>
 
 <body>
-
+    <a href="index.php"  class="btn agmd-btn-primary">Back</a> 
     <h2 class="text-center text-info">Doctor Details</h2>
 
+    <?php echo "<br><br>"; ?>
     <?php  echo $results;  ?>  
     <tr>
     

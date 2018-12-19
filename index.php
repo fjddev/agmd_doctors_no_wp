@@ -73,7 +73,8 @@ $us_state_abbrs = [
                  > 
             <h1 class="col text-center"><i class="fa fa-flag" aria-hidden="true"></i>
  <?php echo $stateName; ?></h1>
-          </a></h1>
+              </a>
+          </h1>
         </div>
 
         <div id="<?php echo strtolower($_state_name);?>" 
@@ -109,6 +110,7 @@ $us_state_abbrs = [
  <script>  
 var states = new Array();
 function showDoctor(id , state) {
+ 
         if (window.XMLHttpRequest) {
             // code for IE7+, Firefox, Chrome, Opera, Safari
             xmlhttp = new XMLHttpRequest();

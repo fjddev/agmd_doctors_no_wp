@@ -25,6 +25,40 @@ class DoctorDB {
         return $title_results;       
 
     }
+    // Returns a string of cities for a doctor
+    function get_doctor_city($doctor_id){
+        $db = Database::getDB();
+        $query = "SELECT DISTINCT city FROM address_us WHERE doctor_id = :doctor_id";
+   
+        $statement = $db->prepare($query);
+        $statement->bindValue(':doctor_id', $doctor_id);       
+        $statement->execute();     		
+
+
+        $city_results="";
+
+        $row_count = $statement->rowCount();
+
+        $count = 1;
+        foreach($statement as $r){
+
+            $city = str_replace(",","",$r['city']);
+            $city = trim($city);            
+
+            if(!empty($city) ){
+                if($row_count == $count){
+                    $city_results .= $city;
+                }else{
+                    $city_results .= $city . "<br> ";
+                }
+
+            }    
+            $count++;
+        }
+
+        return $city_results;       
+
+    }    
 
 
 
@@ -179,19 +213,24 @@ class DoctorDB {
 
         $results = "";
         foreach ($statement as $row)  {
-            $address_display = 
-                    $this->prepareAddress($row['address_name'],
-                    $row['address'],
-                    $row['address2'],
-                    $row['address3'],
-                    $row['address4'],
-                    $row['city'],
-                    $row['state'],
-                    $row['zip5'],
-                    $row['zip4']
+            if(!empty($row['address_name'])){
+                $address_display = 
+                $this->prepareAddress(
+                                    $row['address_name'],
+                                    $row['address'],
+                                    $row['address2'],
+                                    $row['address3'],
+                                    $row['address4'],
+                                    $row['city'],
+                                    $row['state'],
+                                    $row['zip5'],
+                                    $row['zip4']
 
-            ); 
-            $results .= $address_display . "<br>";          
+                ); 
+                $results .= $address_display . "<br>";
+            }
+
+                     
             
         }
         return $results;
@@ -204,7 +243,7 @@ class DoctorDB {
         $db = Database::getDB();
 
         $query="";
-        $query .= "SELECT phone FROM doctor_telephone WHERE doctor_id = :doctor_id";
+        $query .= "SELECT DISTINCT phone FROM doctor_telephone WHERE doctor_id = :doctor_id";
 
 
         $statement = $db->prepare($query);
@@ -228,6 +267,7 @@ class DoctorDB {
 
     }
 // Doctor Detail with cards
+// This is the details page for one doctor
     public function get_wp_doctor_detail($doctor_id){
 
         $db = Database::getDB();	
@@ -534,9 +574,10 @@ public function get_wp_DoctorByState($state){
 
     $db = Database::getDB();	
 	$query = "";
-	$query .= "SELECT d.doctor_id, d.credentials, d.first_name, d.last_name, a.city ";
+	$query .= "SELECT DISTINCT d.doctor_id, d.credentials, d.first_name, d.last_name ";
     $query .= "FROM doctor d, address_us a ";
-    $query .= "WHERE d.doctor_id = a.doctor_id and a.state=:state_abbr";
+    $query .= "WHERE d.doctor_id = a.doctor_id and a.state=:state_abbr and d.last_name  != '' and d.last_name IS NOT NULL ";
+    $query .= " ORDER BY trim(d.last_name)";
 	
 
 
@@ -549,7 +590,7 @@ public function get_wp_DoctorByState($state){
 	if($count == 0){
 		$results = "";
 		$results = '<div class="alert alert-info col text-center">
-		            <strong ><h1> No doctors available at this time for this state.</h1></strong> 
+		            <strong ><h1> No listing at this time.</h1></strong> 
 	                </div>';
 		return  $results;
 
@@ -609,7 +650,8 @@ public function get_wp_DoctorByState($state){
    
 
         $results .= '<div class="col-sm-7" style="border:1px solid #333">';
-        $results .= "<p class='font-weight-bold  font-italic agmd-font-size1'  >". $row['credentials'] . " " . $row['first_name'] . " " . " " . $row['last_name'] . "";
+        $doctor_full_name =  $row['first_name'] . " " . " " . $row['last_name']. " " .$row['credentials'] ;
+        $results .= "<p class='font-weight-bold  font-italic agmd-font-size1'  >". $doctor_full_name . "";
         $results .="</div>";
 
         // $results .= '<div class="col-sm-4" style="border:1px solid #333">';
@@ -617,7 +659,8 @@ public function get_wp_DoctorByState($state){
         // $results .= "</div>";
 
         $results .= '<div class="col-sm-3" style="border:1px solid #333">';
-        $results .= "<p class='font-weight-bold agmd-font-size1' >" . $row['city'] . "</p>";
+        $cities_for_doctor = $this->get_doctor_city($doctor_id);
+        $results .= "<p class='font-weight-bold agmd-font-size1' >" . $cities_for_doctor . "</p>";
         $results .= "</div>";
 
         $results .= '<div class="col-2" style="border:1px solid #333">';

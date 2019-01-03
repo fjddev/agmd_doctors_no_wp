@@ -1,4 +1,4 @@
-<?php require ('agmd/model/database.php'); ?>
+`<?php require ('agmd/model/database.php'); ?>
 <?php require ('agmd/model/DoctorDB.php'); ?>
 <?php
 global $db_password;
@@ -50,8 +50,12 @@ $us_state_abbrs = [
 </head>
 <body>
 <br>
+<div class="fixed-top" style="margin-top: 20px; margin-bottom: 20px">
+<a href="https://www.agmdhope.org" class="btn btn-primary"><i class="fa fa-home"></i> AGMD HOME</a>
+</div>
+
 <hr><br>
-<h1 class="text-center text-primary">US Physcians Search</h1>
+<h1 class="text-center text-primary">AGMD US Physician Locator</h1>
 <br>
 <hr><hr>
 <div class="container">	
@@ -99,7 +103,8 @@ $us_state_abbrs = [
 
 
     </div> <!--container-->
-      
+
+    <a href="https://www.agmdhope.org" class="btn btn-primary"><i class="fa fa-home"></i> AGMD HOME</a>
 
   <div style="margin-top:500px;"></div>
   
@@ -164,4 +169,4 @@ $('.stated').click(function(event){
 
 </script>
   </body>
-  </html>
+  </html>`
